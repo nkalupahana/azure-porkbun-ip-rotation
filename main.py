@@ -25,6 +25,7 @@ new_ip = network_client.public_ip_addresses.begin_create_or_update(os.environ["A
 print("Associating new IP...")
 interface.ip_configurations[0].public_ip_address = new_ip
 network_client.network_interfaces.begin_create_or_update(os.environ["AZURE_RG_NAME"], os.environ["AZURE_NI_NAME"], interface)
+time.sleep(30)
 
 print("Deleting old IP...")
 network_client.public_ip_addresses.begin_delete(os.environ["AZURE_RG_NAME"], old_ip.id.split("/")[-1]).result()
@@ -32,7 +33,7 @@ network_client.public_ip_addresses.begin_delete(os.environ["AZURE_RG_NAME"], old
 print(f"New IP: {new_ip.ip_address}")
 
 print("Updating DNS...")
-resp = requests.post(f"https://porkbun.com/api/json/v3/dns/editByNameType/{os.environ["PORKBUN_DOMAIN_NAME"]}/A/{os.environ["PORKBUN_SUBDOMAIN_NAME"]}", json={
+resp = requests.post(f"https://porkbun.com/api/json/v3/dns/editByNameType/{os.environ['PORKBUN_DOMAIN_NAME']}/A/{os.environ['PORKBUN_SUBDOMAIN_NAME']}", json={
     "apikey": os.environ["PORKBUN_API_PK"],
     "secretapikey": os.environ["PORKBUN_API_SK"],
     "content": new_ip.ip_address
